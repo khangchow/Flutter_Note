@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_note/presentation/bloc/note/note_bloc.dart';
+import 'package:flutter_note/presentation/bloc/note/note_event.dart';
 import 'package:intl/intl.dart';
 
-import '../../data/local/floor/dao/note_dao.dart';
 import '../../data/local/floor/entity/note.dart';
 
 class AddEditNoteScreen extends StatelessWidget {
   final Note? note;
-  final NoteDao noteDao;
 
-  const AddEditNoteScreen({super.key, this.note, required this.noteDao});
+  const AddEditNoteScreen({super.key, this.note});
 
   @override
   Widget build(BuildContext context) {
@@ -46,30 +47,36 @@ class AddEditNoteScreen extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisAlignment: note != null
+                    ? MainAxisAlignment.spaceAround
+                    : MainAxisAlignment.center,
                 children: [
                   ElevatedButton(
                     onPressed: () {
                       if (titleController.text.trim().isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Title can not be empty!'),
+                            content: Text('Title can not be empty'),
                             behavior: SnackBarBehavior.floating,
                           ),
                         );
                         return;
                       }
                       if (note == null) {
-                        noteDao.insertNote(
-                          Note(
-                            title: titleController.text.trim(),
-                            description: descriptionController.text.trim(),
-                            createdAt: DateTime.now().millisecondsSinceEpoch,
-                          ),
-                        );
+                        context.read<NoteBloc>().add(
+                              NoteInserted(
+                                note: Note(
+                                  title: titleController.text.trim(),
+                                  description:
+                                      descriptionController.text.trim(),
+                                  createdAt:
+                                      DateTime.now().millisecondsSinceEpoch,
+                                ),
+                              ),
+                            );
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Inserted new note.'),
+                            content: Text('Inserted'),
                             behavior: SnackBarBehavior.floating,
                           ),
                         );
@@ -77,7 +84,13 @@ class AddEditNoteScreen extends StatelessWidget {
                         note!.title = titleController.text.trim();
                         note!.description = descriptionController.text.trim();
                         note!.createdAt = DateTime.now().millisecondsSinceEpoch;
-                        noteDao.updateNote(note!);
+                        context.read<NoteBloc>().add(NoteUpdated(note: note!));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Updated'),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
                       }
                       Navigator.of(context).pop();
                     },
@@ -96,12 +109,14 @@ class AddEditNoteScreen extends StatelessWidget {
                               actions: <Widget>[
                                 TextButton(
                                   onPressed: () {
-                                    noteDao.deleteNote(note!);
+                                    context
+                                        .read<NoteBloc>()
+                                        .add(NoteDeleted(note: note!));
                                     Navigator.of(context).pop();
                                     Navigator.of(context).pop();
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
-                                        content: Text('Deleted!'),
+                                        content: Text('Deleted'),
                                         behavior: SnackBarBehavior.floating,
                                       ),
                                     );

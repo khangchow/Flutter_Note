@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_note/data/local/sharedpreferences/note_preferences.dart';
-import 'package:flutter_note/presentation/add_note/add_edit_note_screen.dart';
+import 'package:flutter_note/presentation/bloc/note/note_bloc.dart';
+import 'package:flutter_note/presentation/bloc/note/note_event.dart';
+import 'package:flutter_note/presentation/bloc/note/note_state.dart';
 
-import '../../data/local/floor/dao/note_dao.dart';
 import '../../data/local/floor/entity/note.dart';
+import 'add_edit_note_screen.dart';
 
 class NoteScreen extends StatefulWidget {
-  final NoteDao noteDao;
-
-  const NoteScreen({super.key, required this.noteDao});
+  const NoteScreen({super.key});
 
   @override
   State<NoteScreen> createState() => _NoteScreenState();
@@ -22,15 +23,21 @@ class _NoteScreenState extends State<NoteScreen> {
   void initState() {
     super.initState();
     isSortedByCharacter = NotePreferences.isSortedByCharacter();
+    context
+        .read<NoteBloc>()
+        .add(NotesFetched(isSortedByCharacter: isSortedByCharacter));
   }
 
   void _handleCheckboxChanged() {
-    setState(() {});
+    setState(() {
+      context
+          .read<NoteBloc>()
+          .add(NotesFetched(isSortedByCharacter: isSortedByCharacter));
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    print('build $isSortedByCharacter');
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Notes'),
@@ -55,8 +62,8 @@ class _NoteScreenState extends State<NoteScreen> {
                 ),
               ),
               PopupMenuItem(
-                onTap: () async {
-                  await widget.noteDao.deleteAllNotes();
+                onTap: () {
+                  context.read<NoteBloc>().add(NotesCleared());
                 },
                 child: const Text('Delete all notes'),
               )
@@ -76,45 +83,43 @@ class _NoteScreenState extends State<NoteScreen> {
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(builder: (context) {
-              return AddEditNoteScreen(
-                noteDao: widget.noteDao,
-              );
+              return const AddEditNoteScreen();
             }),
           );
         },
       ),
-      body: StreamBuilder<List<Note>>(
-        stream: widget.noteDao.getNotes(isSortedByCharacter),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            List<Note> notes = snapshot.data!;
-            return ListView.separated(
-              itemCount: notes.length,
-              itemBuilder: (context, index) {
-                Note note = notes[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) {
-                        return AddEditNoteScreen(
-                          noteDao: widget.noteDao,
-                          note: note,
+      body: BlocBuilder<NoteBloc, NoteState>(
+        builder: (context, state) {
+          if (state is NoteSuccess) {
+            return StreamBuilder(
+              stream: state.notes,
+              builder:
+                  (BuildContext context, AsyncSnapshot<List<Note>> snapshot) {
+                final List<Note> notes = snapshot.data ?? List.empty();
+                return ListView.separated(
+                  itemCount: notes.length,
+                  itemBuilder: (context, index) {
+                    Note note = notes[index];
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (context) {
+                            return AddEditNoteScreen(
+                              note: note,
+                            );
+                          }),
                         );
-                      }),
+                      },
+                      child: ListTile(
+                        title: Text(note.title),
+                        subtitle: Text(note.description),
+                        // Add more UI components here as needed
+                      ),
                     );
                   },
-                  child: ListTile(
-                    title: Text(note.title),
-                    subtitle: Text(note.description),
-                    // Add more UI components here as needed
-                  ),
+                  separatorBuilder: (context, index) => const Divider(),
                 );
               },
-              separatorBuilder: (context, index) => const Divider(),
-            );
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text('Error: ${snapshot.error}'),
             );
           } else {
             return const Center(
