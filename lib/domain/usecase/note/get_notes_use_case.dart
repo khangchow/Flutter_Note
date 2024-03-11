@@ -7,6 +7,5 @@ class GetNotesUseCase {
 
   GetNotesUseCase({required this.noteRepository});
 
-  Stream<List<Note>> invoke(bool isSortedByCharacter) =>
-      noteRepository.getNotes(isSortedByCharacter);
+  Stream<List<Note>> invoke() => noteRepository.getNotes();
 }

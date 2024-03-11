@@ -1,4 +1,5 @@
 import 'package:flutter_note/data/local/floor/entity/note.dart';
+import 'package:flutter_note/data/local/sharedpreferences/note_preferences.dart';
 import 'package:flutter_note/domain/repository/note/note_repository.dart';
 
 import '../local/floor/dao/note_dao.dart';
@@ -9,8 +10,8 @@ class NoteRepositoryImpl extends NoteRepository {
   NoteRepositoryImpl({required this.noteDao});
 
   @override
-  Stream<List<Note>> getNotes(bool isSortedByCharacter) =>
-      noteDao.getNotes(isSortedByCharacter);
+  Stream<List<Note>> getNotes() =>
+      noteDao.getNotes(NotePreferences.isSortedByCharacter());
 
   @override
   void clearNotes() async {
@@ -30,5 +31,10 @@ class NoteRepositoryImpl extends NoteRepository {
   @override
   void updateNote(Note note) async {
     await noteDao.updateNote(note);
+  }
+
+  @override
+  void updateNoteSortingCondition(bool isSortedByCharacter) async {
+    await NotePreferences.sortByCharacter(isSortedByCharacter);
   }
 }

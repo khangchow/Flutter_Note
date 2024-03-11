@@ -28,14 +28,6 @@ class _NoteScreenState extends State<NoteScreen> {
         .add(NotesFetched(isSortedByCharacter: isSortedByCharacter));
   }
 
-  void _handleCheckboxChanged() {
-    setState(() {
-      context
-          .read<NoteBloc>()
-          .add(NotesFetched(isSortedByCharacter: isSortedByCharacter));
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,10 +44,9 @@ class _NoteScreenState extends State<NoteScreen> {
                     activeColor: Colors.blue,
                     onChanged: (value) async {
                       isSortedByCharacter = value ?? false;
-                      await NotePreferences.sortByCharacter(
-                          isSortedByCharacter);
+                      context.read<NoteBloc>().add(NotesSortingConditionUpdated(
+                          isSortedByCharacter: isSortedByCharacter));
                       setState(() {});
-                      _handleCheckboxChanged();
                     },
                     title: const Text('Sort by character ASC'),
                   ),

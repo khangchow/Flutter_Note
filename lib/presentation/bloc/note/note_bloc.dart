@@ -5,6 +5,7 @@ import 'package:flutter_note/domain/usecase/note/insert_note_use_case.dart';
 import 'package:flutter_note/domain/usecase/note/update_note_use_case.dart';
 
 import '../../../domain/usecase/note/get_notes_use_case.dart';
+import '../../../domain/usecase/note/update_notes_sorting_condition_use_case.dart';
 import 'note_event.dart';
 import 'note_state.dart';
 
@@ -14,6 +15,7 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
   final InsertNoteUseCase insertNoteUseCase;
   final DeleteNoteUseCase deleteNoteUseCase;
   final ClearNotesUseCase clearNotesUseCase;
+  final UpdateNotesSortingConditionUseCase updateNotesSortingConditionUseCase;
 
   NoteBloc(
     this.getNotesUseCase,
@@ -21,18 +23,19 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
     this.insertNoteUseCase,
     this.deleteNoteUseCase,
     this.clearNotesUseCase,
+    this.updateNotesSortingConditionUseCase,
   ) : super(NoteInitial()) {
     on<NotesFetched>(_getNotes);
     on<NoteInserted>(_insertNote);
     on<NotesCleared>(_clearNotes);
     on<NoteUpdated>(_updateNote);
     on<NoteDeleted>(_deleteNote);
+    on<NotesSortingConditionUpdated>(_updateSortingCondition);
   }
 
   void _getNotes(NoteEvent event, Emitter<NoteState> emit) {
     emit(NoteLoading());
-    final notes =
-        getNotesUseCase.invoke((event as NotesFetched).isSortedByCharacter);
+    final notes = getNotesUseCase.invoke();
     emit(NoteSuccess(notes: notes));
   }
 
@@ -50,5 +53,11 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
 
   void _clearNotes(NoteEvent event, Emitter<NoteState> emit) {
     clearNotesUseCase.invoke();
+  }
+
+  void _updateSortingCondition(NoteEvent event, Emitter<NoteState> emit) {
+    updateNotesSortingConditionUseCase
+        .invoke((event as NotesSortingConditionUpdated).isSortedByCharacter);
+    _getNotes(event, emit);
   }
 }

@@ -8,6 +8,7 @@ import 'package:flutter_note/domain/usecase/note/delete_note_use_case.dart';
 import 'package:flutter_note/domain/usecase/note/get_notes_use_case.dart';
 import 'package:flutter_note/domain/usecase/note/insert_note_use_case.dart';
 import 'package:flutter_note/domain/usecase/note/update_note_use_case.dart';
+import 'package:flutter_note/domain/usecase/note/update_notes_sorting_condition_use_case.dart';
 import 'package:flutter_note/presentation/bloc/note/note_bloc.dart';
 import 'package:flutter_note/presentation/screen/note_screen.dart';
 
@@ -38,6 +39,8 @@ class NoteApp extends StatelessWidget {
           InsertNoteUseCase(noteRepository: context.read<NoteRepositoryImpl>()),
           DeleteNoteUseCase(noteRepository: context.read<NoteRepositoryImpl>()),
           ClearNotesUseCase(noteRepository: context.read<NoteRepositoryImpl>()),
+          UpdateNotesSortingConditionUseCase(
+              noteRepository: context.read<NoteRepositoryImpl>()),
         ),
         child: MaterialApp(
           title: 'Note',
