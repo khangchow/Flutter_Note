@@ -1,7 +1,7 @@
-import '../../../data/local/floor/entity/note.dart';
+import '../../data/local/floor/entity/note.dart';
 
 abstract class NoteRepository {
-  Stream<List<Note>> getNotes();
+  Stream<List<Note>> getNotes(bool isSortedByCharacter);
 
   void insertNote(Note note);
 
@@ -10,6 +10,4 @@ abstract class NoteRepository {
   void updateNote(Note note);
 
   void clearNotes();
-
-  void updateNoteSortingCondition(bool isSortedByCharacter);
 }

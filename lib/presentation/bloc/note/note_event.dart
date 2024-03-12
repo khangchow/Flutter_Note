@@ -27,9 +27,3 @@ class NoteDeleted extends NoteEvent {
 
   NoteDeleted({required this.note});
 }
-
-class NotesSortingConditionUpdated extends NoteEvent {
-  final bool isSortedByCharacter;
-
-  NotesSortingConditionUpdated({required this.isSortedByCharacter});
-}

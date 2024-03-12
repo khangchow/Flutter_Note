@@ -1,5 +1,5 @@
 import '../../../data/local/floor/entity/note.dart';
-import '../../repository/note/note_repository.dart';
+import '../../repository/note_repository.dart';
 
 class DeleteNoteUseCase {
   final NoteRepository noteRepository;
