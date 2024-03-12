@@ -8,30 +8,14 @@ import '../../data/local/floor/entity/note.dart';
 import '../bloc/sorting/sorting_event.dart';
 import 'add_edit_note_screen.dart';
 
-class NoteScreen extends StatefulWidget {
+class NoteScreen extends StatelessWidget {
   const NoteScreen({super.key});
 
   @override
-  State<NoteScreen> createState() => _NoteScreenState();
-}
-
-class _NoteScreenState extends State<NoteScreen> {
-  void onCheckBoxChecked(Function callback) {
-    setState(() {
-      callback();
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
+  Widget build(BuildContext context) {
     context.read<NoteBloc>().add(NotesFetched(
           isSortedByCharacter: context.read<SortingBloc>().state,
         ));
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Notes'),
@@ -52,11 +36,9 @@ class _NoteScreenState extends State<NoteScreen> {
                               SortingConditionChanged(
                                   isSortedByCharacter: value!));
                           setState(() {});
-                          onCheckBoxChecked(() {
-                            context
-                                .read<NoteBloc>()
-                                .add(NotesFetched(isSortedByCharacter: value));
-                          });
+                          context
+                              .read<NoteBloc>()
+                              .add(NotesFetched(isSortedByCharacter: value));
                         },
                         title: const Text('Sort by character ASC'),
                       );
