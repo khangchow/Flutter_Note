@@ -96,7 +96,11 @@ class NoteScreen extends StatelessWidget {
                     },
                     child: ListTile(
                       title: Text(note.title),
-                      subtitle: Text(note.description),
+                      subtitle: Text(
+                        note.description,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                       // Add more UI components here as needed
                     ),
                   );
